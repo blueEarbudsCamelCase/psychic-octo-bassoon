@@ -5,40 +5,36 @@ function App() {
   const [level, setLevel] = useState(1); // Start with level 1
 
   useEffect(() => {
-    // Function to handle messages from the iframe
     const handleMessage = (event) => {
-      // Check if the message is from a trusted origin (neal.fun)
+      // Keep the origin check for security, even with direct embed
       if (event.origin !== "https://embed.neal.fun") {
         console.log("Message received from unknown origin:", event.origin);
-        return; // Don't process messages from untrusted sources
+        return;
       }
-
-      // Check for the specific 'captcha-completed' message from neal.fun
       if (event.data.type === "captcha-completed") {
-        // Log for debugging
         console.log(`CAPTCHA for level ${level} completed!`);
-
-        // Increment the level to load the next captcha
         setLevel(prevLevel => prevLevel + 1);
       }
     };
 
-    // Add the event listener when the component mounts
     window.addEventListener("message", handleMessage);
-
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [level]); // Re-run effect if level changes to update the console log
+  }, [level]);
+
+  // Direct URL for the iframe src, no proxy
+  const iframeSrc = `https://embed.neal.fun/not-a-robot/${level}`;
+
+  // Debugging log remains useful
+  console.log('DEBUG: iframe src being used (direct embed):', iframeSrc);
 
   return (
     <div className="App">
       <h1>My Robot Game</h1>
       <div className="game-container">
         <iframe
-          // Use the local proxy endpoint for the iframe src
-          src={`/neal-proxy/not-a-robot/${level}`}
+          src={iframeSrc} // Direct embed source
           width="100%"
           height="600"
           frameBorder="0"
