@@ -7,6 +7,12 @@ function App() {
   useEffect(() => {
     // Function to handle messages from the iframe
     const handleMessage = (event) => {
+      // Check if the message is from a trusted origin (neal.fun)
+      if (event.origin !== "https://embed.neal.fun") {
+        console.log("Message received from unknown origin:", event.origin);
+        return; // Don't process messages from untrusted sources
+      }
+
       // Check for the specific 'captcha-completed' message from neal.fun
       if (event.data.type === "captcha-completed") {
         // Log for debugging
@@ -31,8 +37,8 @@ function App() {
       <h1>My Robot Game</h1>
       <div className="game-container">
         <iframe
-          // Dynamically set the src attribute using the current level state
-          src={`https://embed.neal.fun/not-a-robot/level${level}`}
+          // Use the local proxy endpoint for the iframe src
+          src={`/neal-proxy/not-a-robot/${level}`}
           width="100%"
           height="600"
           frameBorder="0"
