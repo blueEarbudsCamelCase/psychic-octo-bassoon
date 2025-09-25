@@ -6,7 +6,10 @@ function App() {
 
   useEffect(() => {
     const handleMessage = (event) => {
-      // Keep the origin check for security, even with direct embed
+      // Keep the origin check for security
+      // Note: When proxied, the origin seen by the browser in the iframe *might* still be neal.fun
+      // or it might be null/your domain depending on strictness and browser.
+      // Keep it targeting "https://embed.neal.fun" for robustness if neal.fun is the source of message events.
       if (event.origin !== "https://embed.neal.fun") {
         console.log("Message received from unknown origin:", event.origin);
         return;
@@ -23,18 +26,18 @@ function App() {
     };
   }, [level]);
 
-  // Direct URL for the iframe src, no proxy
-  const iframeSrc = `https://embed.neal.fun/not-a-robot/${level}`;
+  // Use the proxied URL for the iframe src
+  const iframeSrc = `/neal-proxy/not-a-robot/${level}`;
 
   // Debugging log remains useful
-  console.log('DEBUG: iframe src being used (direct embed):', iframeSrc);
+  console.log('DEBUG: iframe src being used (via proxy):', iframeSrc);
 
   return (
     <div className="App">
       <h1>My Robot Game</h1>
       <div className="game-container">
         <iframe
-          src={iframeSrc} // Direct embed source
+          src={iframeSrc} // Proxied source
           width="100%"
           height="600"
           frameBorder="0"
@@ -42,7 +45,7 @@ function App() {
         ></iframe>
       </div>
       <p>
-        You are currently playing level **{level}**.
+        You are currently playing level {level}.
       </p>
     </div>
   );
